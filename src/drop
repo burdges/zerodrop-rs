@@ -1,0 +1,22 @@
+
+/*
+#[derive(Debug)]
+pub struct DropSecret<T>(Box(T)) where T: Drop;
+
+impl<T> Drop for DropSecret<T> where T: Drop {
+    #[inline(never)]
+    fn drop(&mut self) {
+        unsafe { ::std::intrinsics::drop_in_place(self); }
+        unsafe { ::std::intrinsics::volatile_set_memory::<Secret<T>>(&t, 0, 1); }
+    }
+}
+
+#[feature(box_syntax)]
+impl<T> DropSecret<T> where T: Drop+Default {
+    pub fn new(t: &T) -> DropSecret<T> {
+        box *t
+    }
+}
+*/
+
+

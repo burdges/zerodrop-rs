@@ -1,0 +1,17 @@
+[package]
+name = "zerodrop"
+version = "0.1.0"
+authors = ["Jeffrey Burdges <burdges@gnunet.org>"]
+
+description = "Zero boxed data when dropped"
+homepage = "https://github.com/burdges/zerodrop-rs"
+repository = "https://github.com/burdges/zerodrop-rs.git"
+documentation = "https://docs.rs/zerodrop/"
+readme = "README.md"
+keywords = ["drop","cryptography",""]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+consistenttime = "^0.2"
+
+[dev-dependencies]

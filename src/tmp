@@ -1,0 +1,1 @@
+//We leave application developers to do `impl Eq for SemiSecret<MyT> { }` however.
