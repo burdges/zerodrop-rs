@@ -8,7 +8,7 @@ homepage = "https://github.com/burdges/zerodrop-rs"
 repository = "https://github.com/burdges/zerodrop-rs.git"
 documentation = "https://docs.rs/zerodrop/"
 readme = "README.md"
-keywords = ["drop","cryptography",""]
+keywords = ["drop","cryptography","erasure","zero"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
