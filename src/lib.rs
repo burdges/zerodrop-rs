@@ -49,23 +49,24 @@ impl<T> Drop for ZeroDrop<T> where T: Copy+Default {
 /// moves data on the stack willy nilly.
 impl<T> ZeroDrop<T> where T: Copy+Default {
     pub fn new_default() -> ZeroDrop<T> {
-        ZeroDrop(Box::new(Default::default()))
+        ZeroDrop(Default::default())
     }
+
     pub fn new_clone(t: &T) -> ZeroDrop<T> {
-        ZeroDrop(box *t)
+        let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
+        unsafe { ::std::ptr::copy_nonoverlapping::<T>(t,b.deref_mut(),1) }
+        ZeroDrop(b)
     }
-    pub fn new(t: T) -> ZeroDrop<T> {
-        ZeroDrop(box t)
+
+    /// Insecure if `t` likely gets placed on the stack
+    pub fn new_insecure(t: T) -> ZeroDrop<T> {
+        ZeroDrop(Box::new(t))
     }
-        // Avoid box syntax by using the following instead.
-        // let b = Self::new_default();
-        // *b = *t;
-        // ZeroDrop(b)
 }
 
 impl<T> Default for ZeroDrop<T> where T: Copy+Default {
     fn default() -> ZeroDrop<T> {
-        ZeroDrop(Box::new(Default::default()))
+        ZeroDrop(Default::default())
     }
 }
 
@@ -77,8 +78,11 @@ pub struct ZeroDropDrop<T>(Box<T>) where T: Drop+Default;
 impl<T> Drop for ZeroDropDrop<T> where T: Drop+Default {
     #[inline(never)]
     fn drop(&mut self) {
-        unsafe { ::std::ptr::drop_in_place(self) } 
-        *self.0 = Default::default();
+        let s: &mut T = self.0.deref_mut();
+        unsafe {
+            ::std::ptr::drop_in_place::<T>(s);
+            ::std::ptr::write::<T>(s,Default::default());
+        }
     }
 }
 
@@ -94,10 +98,15 @@ impl<T> ZeroDropDrop<T> where T: Drop+Default {
     pub fn new_default() -> ZeroDropDrop<T> {
         ZeroDropDrop(Default::default())
     }
-    // TODO How can we promote a &T to a Box<T>?
-    // pub fn new(t: &T) -> ZeroDropDrop<T> {
-    //     ZeroDropDrop(box *t)
-    // }
+
+    // Is b.clone_from(t) safe when b is uninitialized?
+    /*
+    pub fn new_clone(t: &T) -> ZeroDrop<T> {
+        let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
+        b.clone_from(t);
+        ZeroDrop(b)
+    }
+    */
 }
 
 
@@ -196,7 +205,7 @@ mod tests {
     #[test]
     fn zeroing_drops() {
         let p : *const [u8; 32];
-        let s = ZeroDrop::new([3u8; 32]);  
+        let s = ZeroDrop::new_insecure([3u8; 32]);  
         p = s.deref();
         ::std::mem::drop(s);
         unsafe { assert_eq!(*p,[0u8; 32]); }
@@ -205,7 +214,7 @@ mod tests {
     #[should_panic(expected = "assertion failed")]
     fn not_droped() {
         let p : *const [u8; 32];
-        let s = ZeroDrop::new([3u8; 32]);  
+        let s = ZeroDrop::new_insecure([3u8; 32]);  
         p = s.deref();
         // ::std::mem::drop(s);
         unsafe { assert_eq!(*p,[0u8; 32]); }
