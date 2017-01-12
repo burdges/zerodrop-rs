@@ -10,7 +10,7 @@ use std::boxed::Box;
 use std::ops::{Deref,DerefMut};
 use std::convert::{AsRef,AsMut};
 // Conflicts with `impl Borrow<T> for T`
-// use std::borrow::{Borrow,BorrowMut};
+use std::borrow::{Borrow,BorrowMut};
 
 /// Zeroing drop wrapper type.
 ///
@@ -152,21 +152,19 @@ impl<T,U> AsMut<U> for $s<T> where T: $cd+Default+AsMut<U> {
     }
 }
 
-/*
 /// Delegate `Borrow<_>` to `Box`
-impl<T,U> Borrow<U> for $s<T> where T: $cd+Default+Borrow<U> {
-    fn borrow(&self) -> &U {
+impl<T> Borrow<T> for $s<T> where T: $cd+Default {
+    fn borrow(&self) -> &T {
         self.0.borrow()
     }
 }
 
 /// Delegate `BorrowMut<_>` to `Box`
-impl<T,U> BorrowMut<U> for $s<T> where T: $cd+Default+BorrowMut<U> {
-    fn borrow_mut(&mut self) -> &mut U {
+impl<T> BorrowMut<T> for $s<T> where T: $cd+Default {
+    fn borrow_mut(&mut self) -> &mut T {
         self.0.borrow_mut()
     }
 }
-*/
 
 } }  // impl_Boxy
 
