@@ -9,6 +9,8 @@ use std::borrow::{Borrow,BorrowMut};
 
 /// Zeroing drop wrapper type for `Drop` types.
 ///
+/// WARNING: This type will not work as expected https://github.com/burdges/zerodrop-rs/issues/7
+///
 /// `ZeroDropDrop<T>` wraps a `Box<T>` where `T: Drop+Default`.
 /// It's drop method invokes `<T as Drop>::drop` before replacing
 /// `T` with `<T as Default>::default()`, which gets dropped again.
