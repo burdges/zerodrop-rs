@@ -49,20 +49,23 @@ impl<T> Drop for ZeroDrop<T> where T: Copy {
 /// Create a `ZeroDrop<T>` for a `T: Copy` consisting of a `Box<T>`
 /// that will be zeroed when dropped. 
 impl<T> ZeroDrop<T> where T: Copy {
-    pub fn new_default() -> ZeroDrop<T> where T: Default {
-        ZeroDrop(Default::default())
-    }
-
-    /// Insecure if `t` likely gets placed on the stack
+    /// Insecure as `t` likely gets placed on the stack
     pub fn new_insecure(t: T) -> ZeroDrop<T> {
         ZeroDrop(Box::new(t))
     }
 
+    /// Use provided `Box<T>`
+    pub fn new_box(b: Box<T>) -> ZeroDrop<T> {
+        ZeroDrop(b)
+    }
+
+    /// Secure but unsafe
     pub unsafe fn new_uninitialized() -> ZeroDrop<T> {
         ZeroDrop(Box::new(::std::mem::uninitialized::<T>()))
     }
 
-    pub fn new_clone(t: &T) -> ZeroDrop<T> {
+    /// Allocate box and copy data into it from reference
+    pub fn new_copy(t: &T) -> ZeroDrop<T> {
         let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
         unsafe { ::std::ptr::copy_nonoverlapping::<T>(t,b.deref_mut(),1) }
         ZeroDrop(b)
@@ -134,6 +137,7 @@ impl<T> Borrow<T> for ZeroDrop<T> where T: Copy {
         self.0.borrow()
     }
 }
+// I donno if any more `Borrow<_>` make sense here.
 
 /// Delegate `BorrowMut<_>` to `Box`
 impl<T> BorrowMut<T> for ZeroDrop<T> where T: Copy {
@@ -141,6 +145,7 @@ impl<T> BorrowMut<T> for ZeroDrop<T> where T: Copy {
         self.0.borrow_mut()
     }
 }
+// I donno if any more `BorrowMut<_>` make sense here.
 
 
 
