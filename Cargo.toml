@@ -1,6 +1,6 @@
 [package]
 name = "zerodrop"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Jeffrey Burdges <burdges@gnunet.org>"]
 
 description = "Zero boxed data when dropped"

@@ -118,16 +118,16 @@ impl<T> DerefMut for ZeroDrop<T> where T: Copy {
 }
 
 /// Delegate `AsRef<_>` to `Box`
-impl<T,U> AsRef<U> for ZeroDrop<T> where T: Copy+AsRef<U> {
-    fn as_ref(&self) -> &U {
-        self.0.as_ref().as_ref()
+impl<T> AsRef<T> for ZeroDrop<T> where T: Copy {
+    fn as_ref(&self) -> &T {
+        self.0.as_ref()
     }
 }
 
 /// Delegate `AsMut<_>` to `Box`
-impl<T,U> AsMut<U> for ZeroDrop<T> where T: Copy+AsMut<U> {
-    fn as_mut(&mut self) -> &mut U {
-        self.0.as_mut().as_mut()
+impl<T> AsMut<T> for ZeroDrop<T> where T: Copy {
+    fn as_mut(&mut self) -> &mut T {
+        self.0.as_mut()
     }
 }
 

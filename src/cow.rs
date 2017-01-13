@@ -109,12 +109,12 @@ impl<'a, T> Deref for ZeroDropCow<'a, T> where T: 'a+Copy {
 /// Delegate `AsRef<_>` to `Borrowed` or `Boxed`.
 // Why does `Cow` not provide `AsRef`?  Ain't clear how well `AsRef` works
 // with `Cow`-like types or if it should call `.as_ref()` twice on `Boxed`.
-impl<'a, T,U> AsRef<U> for ZeroDropCow<'a, T> where T: 'a+Copy+AsRef<U> {
-    fn as_ref(&self) -> &U {
+impl<'a, T> AsRef<T> for ZeroDropCow<'a, T> where T: 'a+Copy {
+    fn as_ref(&self) -> &T {
         use self::ZeroDropCow::*;
         match *self {
-            Borrowed(b) => b.as_ref(),
-            Boxed(ref o) => o.as_ref().as_ref(), 
+            Borrowed(b) => b,
+            Boxed(ref o) => o.as_ref(), 
         }
     }
 }
