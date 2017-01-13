@@ -4,8 +4,8 @@
 
 use std::boxed::Box;
 use std::ops::{Deref,DerefMut};
-use std::convert::{AsRef,AsMut};
-use std::borrow::{Borrow,BorrowMut};
+use std::convert::AsRef;
+use std::borrow::Borrow;
 
 use super::*;
 
@@ -28,7 +28,7 @@ impl<'a, T> Drop for ZeroDropCow<'a, T> where T: 'a+Copy {
     fn drop(&mut self) {
         match *self {
             ZeroDropCow::Borrowed(_) => { },
-            ZeroDropCow::Boxed(ref b) => {
+            ZeroDropCow::Boxed(ref mut b) => {
                 let s: &mut T = b.deref_mut();
                 unsafe { ::std::intrinsics::volatile_set_memory::<T>(s,0,1) }
             }
@@ -54,17 +54,21 @@ impl<'a, T> ZeroDropCow<'a, T> where T: 'a+Copy {
 
     /// Create a `ZeroDrop<T>` for a `T: Copy` consisting of a `Box<T>`
     /// that will be zeroed when dropped.  Use `ZeroDrop` instead normally.
-    pub fn new_copy(t: &T) -> ZeroDropCow<T> {
+    pub fn new_copy(t: &T) -> ZeroDropCow<'a,T> {
         let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
         unsafe { ::std::ptr::copy_nonoverlapping::<T>(t,b.deref_mut(),1) }
         ZeroDropCow::Boxed(b)
     }
 
     /// Convert a `ZeroDrowCow` into a `ZeroDrop`, copying if still borrowed.
-    pub fn into_boxed(self) -> ZeroDrop<T> {
+    pub fn into_boxed(mut self) -> ZeroDrop<T> {
         match self {
             ZeroDropCow::Borrowed(b) => ZeroDrop::new_copy(b),
-            ZeroDropCow::Boxed(o) => ZeroDrop::new_box(o)
+            ZeroDropCow::Boxed(ref mut o) => {
+                let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
+                ::std::mem::swap::<T>(o,&mut b);
+                ZeroDrop::new_box(b)
+            }
         }
     }
 }
@@ -89,9 +93,8 @@ impl<'a, T> Clone for ZeroDropCow<'a, T> where T: 'a+Copy {
 }
 
 // Ain't clear this meshes well with `Cow`-like types
-/*
 /// Delegate `Deref` to `Borrowed` or `Boxed`.
-impl<'a, T> Deref for ZeroDropCow<'a, T> where T: 'a+Copy, Self: 'a {
+impl<'a, T> Deref for ZeroDropCow<'a, T> where T: 'a+Copy {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -102,13 +105,11 @@ impl<'a, T> Deref for ZeroDropCow<'a, T> where T: 'a+Copy, Self: 'a {
         }
     }
 }
-*/
 
-// Ain't clear this meshes well with `Cow`-like types
-/*
 /// Delegate `AsRef<_>` to `Borrowed` or `Boxed`.
-// Why does `Cow` not provide `AsRef`?
-impl<'a, T,U> AsRef<U> for ZeroDropCow<'a, T> where T: 'a+Copy+AsRef<U>, Self: 'a {
+// Why does `Cow` not provide `AsRef`?  Ain't clear how well `AsRef` works
+// with `Cow`-like types or if it should call `.as_ref()` twice on `Boxed`.
+impl<'a, T,U> AsRef<U> for ZeroDropCow<'a, T> where T: 'a+Copy+AsRef<U> {
     fn as_ref(&self) -> &U {
         use self::ZeroDropCow::*;
         match *self {
@@ -117,13 +118,10 @@ impl<'a, T,U> AsRef<U> for ZeroDropCow<'a, T> where T: 'a+Copy+AsRef<U>, Self: '
         }
     }
 }
-*/
 
-// Ain't clear this meshes well with `Cow`-like types
-/*
 /// Delegate `Borrow<T>` to `Borrowed` or `Boxed`.
-impl<'a, T> Borrow<T> for ZeroDropCow<'a, T> where T: 'a+Copy, Self: 'a {
-    fn borrow(&self) -> &'a T {
+impl<'a, T> Borrow<T> for ZeroDropCow<'a, T> where T: 'a+Copy {
+    fn borrow(&self) -> &T {
         use self::ZeroDropCow::*;
         match *self {
             Borrowed(b) => b,
@@ -131,8 +129,7 @@ impl<'a, T> Borrow<T> for ZeroDropCow<'a, T> where T: 'a+Copy, Self: 'a {
         }
     }
 }
-// I donno if any more `Borrow<_>` make sense here.
-*/
+// I donno if any more `Borrow<_>`s make sense here.
 
 /*
 trait ConstantTimeEq {
@@ -156,7 +153,7 @@ impl<T> Eq for Secret<T>  where T: Copy { }
 */
 
 
-
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -179,5 +176,5 @@ mod tests {
         unsafe { assert_eq!(*p,[0u8; 32]); }
     }
 }
-
+*/
 
