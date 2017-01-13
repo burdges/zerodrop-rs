@@ -15,7 +15,7 @@ use std::borrow::{Borrow,BorrowMut};
 ///
 /// ```rust
 /// let p : *const [u8; 32];
-/// let s = zerodrop::ZeroDrop::new_clone(&[3u8; 32]);  
+/// let s = zerodrop::ZeroDrop::new_copy(&[3u8; 32]);  
 /// p = &*s;
 /// std::mem::drop(s);
 /// unsafe { assert_eq!(*p,[0u8; 32]); }

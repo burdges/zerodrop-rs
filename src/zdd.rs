@@ -55,10 +55,10 @@ impl<T> ZeroDropDrop<T> where T: Drop+Default {
 
     // Is b.clone_from(t) safe when b is uninitialized?
     /*
-    pub fn new_clone(t: &T) -> ZeroDrop<T> {
+    pub fn new_clone(t: &T) -> ZeroDropDrop<T> where T: Clone {
         let mut b = Box::new(unsafe { ::std::mem::uninitialized::<T>() });
         b.clone_from(t);
-        ZeroDrop(b)
+        ZeroDropDrop(b)
     }
     */
 }
@@ -140,7 +140,7 @@ impl<T> Eq for Secret<T>  where T: Copy { }
 */
 
 
-
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,5 +163,6 @@ mod tests {
         unsafe { assert_eq!(*p,[0u8; 32]); }
     }
 }
+*/
 
 
