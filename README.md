@@ -1,4 +1,10 @@
 
+
+## Nolonger maintained.  Used [ClearOnDrop](https://github.com/cesarb/clear_on_drop/) instead.
+
+
+
+
 A thin wrapper for `Box` that zeros its data when dropped
 
 [![build status](https://api.travis-ci.org/burdges/zerodrop-rs.png)](https://travis-ci.org/burdges/zerodrop-rs)

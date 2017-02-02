@@ -1,9 +1,9 @@
 [package]
 name = "zerodrop"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Jeffrey Burdges <burdges@gnunet.org>"]
 
-description = "Zero boxed data when dropped"
+description = "Zero boxed data when dropped.  Nolonger maintained.  Use ClearOnDrop at https://github.com/cesarb/clear_on_drop/ instead."
 homepage = "https://github.com/burdges/zerodrop-rs"
 repository = "https://github.com/burdges/zerodrop-rs.git"
 documentation = "https://docs.rs/zerodrop/"
